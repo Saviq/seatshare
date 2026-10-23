@@ -83,7 +83,7 @@ class RequestInput(BaseModel):
 class BookingOut(BaseModel):
     id: int
     name: str
-    owner_login: str
+    owner_login: str | None
     bookable_id: int
     bookable_name: str
     bookable_type: BookableType
@@ -94,7 +94,7 @@ class BookingOut(BaseModel):
     local_date: date
     party_size: int
     seats_available: int
-    description: str
+    description: str | None
     locked: bool
     closed: bool
     created_at: datetime

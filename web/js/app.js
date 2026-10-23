@@ -306,12 +306,12 @@ function bookingCard(
   if (booking.seats_available === 0) states.append(el("span", "Full", "badge"));
   if (ownerStatus) states.append(el("span", ownerStatus, "badge"));
   if (states.childElementCount) card.append(states);
-  card.append(
-    seatingDiagram(booking, requestedSeats),
-    withLogin("Hosted by ", booking.owner_login, "p"),
-  );
-  if (booking.description) {
-    card.append(markdownDescription(booking.description), el("hr", undefined, "description-divider"));
+  card.append(seatingDiagram(booking, requestedSeats));
+  if (user.login) {
+    card.append(withLogin("Hosted by ", booking.owner_login, "p"));
+    if (booking.description) {
+      card.append(markdownDescription(booking.description), el("hr", undefined, "description-divider"));
+    }
   }
   return card;
 }
@@ -438,7 +438,7 @@ function seatingDiagram(booking, requestedSeats = 0) {
 
 function requestUnavailable(booking, { activeRequests, requestedSeats, ownedBookings }) {
   if (!user.login) {
-    return { reason: "Sign in to request spots.", label: "Sign in with GitHub", href: "/auth/login" };
+    return { reason: "Sign in to see details and request spots.", label: "Sign in with GitHub", href: "/auth/login" };
   }
   if (user.login === booking.owner_login) {
     return { reason: "You cannot request spots on your own booking.", label: "Manage my spots", href: "/mine" };

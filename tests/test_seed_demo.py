@@ -28,7 +28,7 @@ def test_demo_bookings_are_varied_and_browsable(
     settings: Settings, client_factory: ClientFactory, timezone: str
 ) -> None:
     assert seed_demo(settings, timezone) == (32, 0)
-    everything = client_factory(None).get("/api/bookings").json()
+    everything = client_factory("demo-alex").get("/api/bookings").json()
     bookings = [b for b in everything if b["bookable_type"] == "restaurant"]
     excursions = [b for b in everything if b["bookable_type"] == "excursion"]
     assert len(bookings) == 24
@@ -110,7 +110,7 @@ def test_demo_bookings_use_supplied_usernames_repeatably(
 ) -> None:
     usernames = [f"workshop-user-{index}" for index in range(user_count)]
     assert seed_demo(settings, usernames=usernames) == (32, 0)
-    before = client_factory(None).get("/api/bookings").json()
+    before = client_factory(usernames[0]).get("/api/bookings").json()
     meals = [booking for booking in before if booking["bookable_type"] == "restaurant"]
     assert len(before) == 32
     assert len(meals) == 24
@@ -118,7 +118,7 @@ def test_demo_bookings_use_supplied_usernames_repeatably(
     assert len({(booking["owner_login"], booking["local_date"]) for booking in meals}) == 24
     assert len({booking["starts_at"][11:16] for booking in meals}) >= 6
     assert seed_demo(settings, usernames=list(reversed(usernames))) == (0, 32)
-    assert client_factory(None).get("/api/bookings").json() == before
+    assert client_factory(usernames[0]).get("/api/bookings").json() == before
     if user_count <= 6:
         assert {booking["owner_login"] for booking in before} == set(usernames)
 

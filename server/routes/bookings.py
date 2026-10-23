@@ -106,7 +106,7 @@ def create_bookable(
         )
 
 
-@router.get("/bookings", response_model=list[BookingOut])
+@router.get("/bookings", response_model=list[BookingOut], response_model_exclude_none=True)
 def browse(
     request: Request,
     bookable_id: int | None = Query(None, ge=1, le=SQLITE_MAX_INT),
@@ -141,7 +141,14 @@ def browse(
                 login,
             ),
         )
-        return [BookingOut(**dict(row)) for row in rows]
+        bookings = []
+        for row in rows:
+            booking = dict(row)
+            if not login:
+                booking["owner_login"] = None
+                booking["description"] = None
+            bookings.append(BookingOut(**booking))
+        return bookings
 
 
 @router.get("/bookings/mine", response_model=list[OwnerBookingOut])

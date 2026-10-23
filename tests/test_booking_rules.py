@@ -39,8 +39,12 @@ def test_booking_identity_cannot_be_supplied(client_factory: ClientFactory, fiel
     path = f"/api/bookings/{booking['id']}"
     assert owner.patch(path, json={field: "someone-else"}).status_code == 400
     public = client_factory(None).get("/api/bookings").json()[0]
-    assert public["owner_login"] == "owner"
+    assert "owner_login" not in public
+    assert "description" not in public
     assert "owner_name" not in public
+    authenticated = owner.get("/api/bookings").json()[0]
+    assert authenticated["owner_login"] == "owner"
+    assert authenticated["description"] == "Dinner together"
     owned = owner.get("/api/bookings/mine").json()[0]
     assert owned["owner_login"] == "owner"
     assert "owner_name" not in owned

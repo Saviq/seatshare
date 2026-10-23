@@ -12,6 +12,11 @@ from server.models import valid_timezone
 from server.time_utils import booking_time, check_overlap, now
 
 DEMO_USERS = ("demo-alex", "demo-blair", "demo-casey", "demo-drew", "demo-ellis", "demo-frankie")
+DEMO_RESTAURANTS = (
+    ("The Glasshouse", "City centre"),
+    ("Riverside Kitchen", "Riverside"),
+    ("Old Town Table", "Old town"),
+)
 DEMO_TABLES = (
     ("Lunch club", 12, 0, 2, 1),
     ("Catch-up lunch", 12, 30, 4, 2),
@@ -53,6 +58,14 @@ def seed_demo(
         restaurants = connection.execute(
             "SELECT id FROM bookables WHERE type='restaurant' ORDER BY id"
         ).fetchall()
+        if not restaurants:
+            connection.executemany(
+                "INSERT INTO bookables (type, name, area) VALUES ('restaurant', ?, ?)",
+                DEMO_RESTAURANTS,
+            )
+            restaurants = connection.execute(
+                "SELECT id FROM bookables WHERE type='restaurant' ORDER BY id"
+            ).fetchall()
 
         def add(
             login: str,

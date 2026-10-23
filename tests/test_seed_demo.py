@@ -10,6 +10,19 @@ from server.seed_demo import main, seed_demo
 from tests.conftest import ClientFactory, ask, create_booking
 
 
+def test_demo_seeding_populates_empty_catalog(settings: Settings) -> None:
+    assert seed_demo(settings) == (32, 0)
+    assert seed_demo(settings) == (0, 32)
+    with closing_connection(settings) as connection:
+        assert (
+            connection.execute("SELECT count(*) FROM bookables WHERE type='restaurant'").fetchone()[
+                0
+            ]
+            == 3
+        )
+        assert connection.execute("SELECT count(*) FROM bookings").fetchone()[0] == 32
+
+
 @pytest.mark.parametrize("timezone", ["UTC", "Europe/London", "Asia/Kathmandu"])
 def test_demo_bookings_are_varied_and_browsable(
     settings: Settings, client_factory: ClientFactory, timezone: str

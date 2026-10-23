@@ -423,7 +423,6 @@ Artifacts:
 ├─ .python-version
 ├─ .workshop/
 │  └─ dev.yaml
-├─ restaurants.json
 ├─ server/
 │  ├─ main.py
 │  ├─ auth.py
@@ -469,7 +468,7 @@ Artifacts:
 - Development dependencies, pre-commit hook installation, and Ruff/mypy configuration.
 
 #### Milestone 2 — DB + booking CRUD foundations
-- migrations + seed restaurants,
+- migrations with an empty initial catalog (sample restaurants only via explicit demo seeding),
 - create/list bookings,
 - basic browse/new UI.
 

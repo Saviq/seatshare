@@ -7,7 +7,6 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev
 COPY server ./server
 COPY web ./web
-COPY restaurants.json ./
 RUN useradd --system --uid 10001 app && mkdir /data && chown app:app /data
 USER app
 ENV PATH="/app/.venv/bin:$PATH" DB_PATH=/data/app.db APP_ENV=production COOKIE_SECURE=true

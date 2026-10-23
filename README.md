@@ -263,9 +263,11 @@ Do not scale to multiple replicas: the rate limiter is process-local and SQLite
 is intended for this single-instance deployment.
 
 Data persists in the `app_data` volume. SQL migrations are applied in filename
-order on startup and recorded atomically. `restaurants.json` contains clearly
-labelled sample venues; replace it with your catalog before the first launch.
-Startup adds new restaurant names without overwriting existing rows.
+order on startup and recorded atomically. New databases start with an empty
+bookable catalog; create venues through **New booking**. Startup does not insert
+sample venues or remove existing catalog entries. The explicit development-only
+`seed-demo` command adds its built-in sample restaurants only when the restaurant
+catalog is empty.
 
 ### Operations
 

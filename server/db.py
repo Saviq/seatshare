@@ -1,4 +1,3 @@
-import json
 import logging
 import sqlite3
 from collections.abc import Iterator
@@ -33,13 +32,6 @@ def initialize(settings: Settings) -> None:
                 + path.read_text()
                 + f"\nINSERT INTO migrations VALUES ('{path.name}');\nCOMMIT;"
             )
-        with connection:
-            for restaurant in json.loads((ROOT / "restaurants.json").read_text()):
-                connection.execute(
-                    "INSERT OR IGNORE INTO bookables (type, name, area) "
-                    "VALUES ('restaurant', ?, ?)",
-                    (restaurant["name"], restaurant.get("area")),
-                )
 
 
 @contextmanager

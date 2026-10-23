@@ -127,7 +127,20 @@ def test_database_initialization_idempotent(settings: Settings) -> None:
     initialize(settings)
     initialize(settings)
     with closing_connection(settings) as connection:
-        assert connection.execute("SELECT count(*) FROM bookables").fetchone()[0] == 3
+        assert connection.execute("SELECT count(*) FROM bookables").fetchone()[0] == 0
+
+
+def test_database_initialization_preserves_existing_catalog(settings: Settings) -> None:
+    initialize(settings)
+    with closing_connection(settings) as connection, connection:
+        connection.execute(
+            "INSERT INTO bookables (type, name, area) VALUES ('restaurant', 'My Cafe', 'Town')"
+        )
+    initialize(settings)
+    with closing_connection(settings) as connection:
+        assert [
+            tuple(row) for row in connection.execute("SELECT type, name, area FROM bookables")
+        ] == [("restaurant", "My Cafe", "Town")]
         assert connection.execute("SELECT count(*) FROM migrations").fetchone()[0] == 8
         assert connection.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
         assert connection.execute("PRAGMA foreign_keys").fetchone()[0] == 1

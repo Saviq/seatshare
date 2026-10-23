@@ -170,5 +170,5 @@ def test_filters_and_bookable_search(client_factory: ClientFactory) -> None:
     assert public.get("/api/bookings?min_seats=0").status_code == 400
     results = public.get("/api/bookables?q=KITCHEN").json()
     assert len(results) == 1
-    assert results[0]["name"] == "The Example Kitchen"
+    assert results[0]["name"] == "Test Kitchen"
     assert public.get("/api/bookables?q=does-not-exist").json() == []

@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 from itsdangerous import TimestampSigner
 
 from server.config import Settings
+from server.db import closing_connection
 from server.main import create_app
 
 ClientFactory = Callable[[str | None], TestClient]
@@ -40,6 +41,15 @@ def app(settings: Settings) -> FastAPI:
 @pytest.fixture
 def client_factory(app: FastAPI, settings: Settings) -> Iterator[ClientFactory]:
     with TestClient(app, base_url=settings.base_url), ExitStack() as stack:
+        with closing_connection(settings) as connection, connection:
+            connection.executemany(
+                "INSERT INTO bookables (type, name, area) VALUES ('restaurant', ?, ?)",
+                [
+                    ("Test Kitchen", "City centre"),
+                    ("Test Garden", "Riverside"),
+                    ("Test Noodle House", "Old town"),
+                ],
+            )
 
         def make(login: str | None = None) -> TestClient:
             client = TestClient(app, base_url=settings.base_url)

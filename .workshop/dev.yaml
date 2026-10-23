@@ -2,3 +2,19 @@ name: dev
 base: ubuntu@26.04
 sdks:
   - name: uv
+actions:
+  tests: |
+    exec uv run --locked pytest "$@"
+  seed-demo: |
+    set -eu
+    mkdir -p .local
+    export DB_PATH=.local/dev.db
+    export APP_ENV=development
+    exec uv run --locked --env-file .env python -m server.seed_demo "$@"
+  dev: |
+    set -eu
+    mkdir -p .local
+    export DB_PATH=.local/dev.db
+    host="$(hostname -f)"
+    echo "Seat Share development server: http://${host}:8080"
+    exec uv run --locked --env-file .env uvicorn server.main:create_app --factory --host "$host" --port 8080 --reload --no-access-log "$@"

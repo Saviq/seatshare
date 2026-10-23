@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="Share spare places at restaurants, on excursions, and on sports courts.">
+    <title>Seat Share</title>
+    <link rel="stylesheet" href="/static/css/vanilla.min.css?v=4.59.0-system">
+    <link rel="stylesheet" href="/static/css/app.css?v=33">
+    <script type="module" src="/static/js/app.js?v=49"></script>
+  </head>
+  <body>
+    <script src="/static/js/theme.js?v=3"></script>
+    <header class="p-strip is-shallow">
+      <div class="row site-header">
+        <a class="site-brand" href="/" aria-label="Seat Share home" title="Seat Share">
+          <img src="/static/images/seat-share.svg" width="48" height="48" alt="">
+        </a>
+        <nav aria-label="Main navigation">
+          <div class="navigation-links">
+            <a href="/">Browse</a>
+            <a href="/new">New booking</a>
+            <a href="/mine">My spots</a>
+          </div>
+          <div class="site-account">
+            <div id="auth"><a class="p-button" href="/auth/login">Sign in with GitHub</a></div>
+            <button id="theme-toggle" class="p-button" type="button" data-theme="auto" aria-label="Theme: Auto. Switch to Dark theme" title="Auto follows your system theme">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <g class="theme-icon theme-icon--light">
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"></path>
+                </g>
+                <path class="theme-icon theme-icon--dark" d="M21 13A9 9 0 0 1 11 3a9 9 0 1 0 10 10Z"></path>
+                <g class="theme-icon theme-icon--auto">
+                  <circle cx="8" cy="8" r="3"></circle>
+                  <path d="M8 1v1m0 12v1M1 8h1m12 0h1M3 3l1 1m8 8 1 1M3 13l1-1m8-8 1-1M21 16a5 5 0 0 1-6-5 5 5 0 1 0 6 5Z"></path>
+                </g>
+              </svg>
+            </button>
+          </div>
+        </nav>
+        <p id="timezone" class="site-timezone"></p>
+      </div>
+    </header>
+    <main class="p-strip site-main">
+      <div class="row">
+        <div id="content" aria-busy="true"><p>Loading Seat Share…</p></div>
+      </div>
+    </main>
+    <div id="message" class="toast" role="status" aria-live="polite"></div>
+    <footer class="p-strip is-shallow">
+      <div class="row">
+        <p>Share a meal, an adventure, or a game. Requester GitHub usernames are visible only to the booking owner.</p>
+      </div>
+    </footer>
+    <template id="booking-form">
+      <form class="p-form">
+        <label>Booking name <input type="text" name="name" required maxlength="100"></label>
+        <label>Bookable
+          <select name="bookable">
+            <option value="">New bookable</option>
+          </select>
+        </label>
+        <p class="p-form-help-text">Choose a bookable to fill in its details, or enter a type, name, and optional area below. New bookables are added when you save.</p>
+        <label>Bookable type
+          <select name="bookable_type" required>
+            <option value="restaurant">Restaurant</option>
+            <option value="excursion">Excursion</option>
+            <option value="sports">Sports</option>
+          </select>
+        </label>
+        <label>Bookable name <input type="text" name="bookable_name" maxlength="100" required></label>
+        <label>Area (optional) <input type="text" name="bookable_area" maxlength="100"></label>
+        <fieldset class="booking-time">
+          <legend>Date and time (24-hour, in your time zone)</legend>
+          <label>Date <input type="date" name="date" required></label>
+          <label>Hour <select name="hour" required></select></label>
+          <label>Minute <select name="minute" required></select></label>
+        </fieldset>
+        <label>Duration (hours)
+          <input type="number" name="duration_hours" min="0.016666666666666666" step="any" placeholder="2">
+        </label>
+        <p class="p-form-help-text">Leave empty for 2 hours. Duration must be a positive whole number of minutes.</p>
+        <label>Booking party size
+          <input type="number" name="party_size" min="1" max="20" value="2" required>
+        </label>
+        <label>Spare spots
+          <input type="number" name="seats_available" min="0" max="20" value="1" required>
+        </label>
+        <label>Description <textarea name="description" maxlength="2000" rows="3"></textarea></label>
+        <p class="p-form-help-text">Supports Markdown: links, **bold**, *italic*, lists, headings, and code.</p>
+        <div>
+          <button class="p-button--positive" type="submit">Save booking</button>
+        </div>
+      </form>
+    </template>
+  </body>
+</html>

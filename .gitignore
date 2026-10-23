@@ -1,1 +1,44 @@
-.workshop.lock
+# Local environment and Workshop state
+/.workshop.lock
+/.local/
+.venv/
+.env
+.env.*
+!.env.example
+
+# Python bytecode, caches, and build output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Local SQLite databases and journals
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Test and coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+test-results.xml
+
+# Local editor settings, logs, and operating-system files
+/.vscode/
+/.idea/
+*.log
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

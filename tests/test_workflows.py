@@ -13,8 +13,8 @@ def test_pages_and_local_assets(client_factory: ClientFactory) -> None:
     for path in ["/", "/new", "/mine", "/requests"]:
         response = client.get(path)
         assert response.status_code == 200
-        assert 'src="/static/js/app.js?v=49"' in response.text
-        assert 'href="/static/css/app.css?v=33"' in response.text
+        assert 'src="/static/js/app.js?v=50"' in response.text
+        assert 'href="/static/css/app.css?v=34"' in response.text
         assert '<meta name="color-scheme" content="light dark">' in response.text
         assert '<body>\n    <script src="/static/js/theme.js?v=3"></script>' in response.text
         assert 'class="site-account"' in response.text
@@ -28,7 +28,7 @@ def test_pages_and_local_assets(client_factory: ClientFactory) -> None:
         assert '<a href="/mine">My spots</a>' in response.text
         assert "My tables" not in response.text
         assert '<input type="text" name="name"' in response.text
-        assert '<select name="bookable">' in response.text
+        assert '<select name="bookable" aria-describedby="bookable-help">' in response.text
         assert '<input type="text" name="bookable_name" maxlength="100" required>' in response.text
         assert '<input type="text" name="bookable_area" maxlength="100">' in response.text
         assert "bookable-combo" not in response.text

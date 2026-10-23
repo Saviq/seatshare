@@ -7,8 +7,8 @@
     <meta name="description" content="Share spare places at restaurants, on excursions, and on sports courts.">
     <title>Seat Share</title>
     <link rel="stylesheet" href="/static/css/vanilla.min.css?v=4.59.0-system">
-    <link rel="stylesheet" href="/static/css/app.css?v=33">
-    <script type="module" src="/static/js/app.js?v=49"></script>
+    <link rel="stylesheet" href="/static/css/app.css?v=34">
+    <script type="module" src="/static/js/app.js?v=50"></script>
   </head>
   <body>
     <script src="/static/js/theme.js?v=3"></script>
@@ -58,11 +58,11 @@
       <form class="p-form">
         <label>Booking name <input type="text" name="name" required maxlength="100"></label>
         <label>Bookable
-          <select name="bookable">
+          <select name="bookable" aria-describedby="bookable-help">
             <option value="">New bookable</option>
           </select>
         </label>
-        <p class="p-form-help-text">Choose a bookable to fill in its details, or enter a type, name, and optional area below. New bookables are added when you save.</p>
+        <p id="bookable-help" class="p-form-help-text">Choose a bookable to fill in its details, or enter a type, name, and optional area below. New bookables are added when you save.</p>
         <label>Bookable type
           <select name="bookable_type" required>
             <option value="restaurant">Restaurant</option>
@@ -79,9 +79,9 @@
           <label>Minute <select name="minute" required></select></label>
         </fieldset>
         <label>Duration (hours)
-          <input type="number" name="duration_hours" min="0.016666666666666666" step="any" placeholder="2">
+          <input type="number" name="duration_hours" min="0.016666666666666666" step="any" placeholder="2" aria-describedby="duration-help">
         </label>
-        <p class="p-form-help-text">Leave empty for 2 hours. Duration must be a positive whole number of minutes.</p>
+        <p id="duration-help" class="p-form-help-text">Leave empty for 2 hours. Duration must be a positive whole number of minutes.</p>
         <label>Booking party size
           <input type="number" name="party_size" min="1" max="20" value="2" required>
         </label>

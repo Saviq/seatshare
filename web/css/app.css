@@ -86,6 +86,8 @@ form input[type], form select, form textarea { display: block; box-sizing: borde
 form input[type], form select { height: 2.5rem; }
 form .p-form-help-text { max-width: none; margin: .5rem 0 1.25rem; padding: 0; }
 button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 3px solid #146345; outline-offset: 3px; }
+.is-dark :focus-visible { outline-color: #6fd3a2; }
 table { overflow-wrap: anywhere; }
 footer { border-top: 1px solid var(--ss-rule); }
 .browse-filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: end; gap: 1rem; max-width: none; }

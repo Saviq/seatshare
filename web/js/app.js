@@ -155,15 +155,22 @@ function withLogin(text, login, tag = "span") {
 }
 
 // Messages float in a fixed bubble so showing one never scrolls the page.
-let messageTimer;
+let messagePreviousFocus;
 function dismissMessage() {
-  clearTimeout(messageTimer);
+  const restoreFocus = message.contains(document.activeElement);
   message.replaceChildren();
   message.className = "toast";
+  if (restoreFocus) {
+    const target = messagePreviousFocus?.isConnected
+      ? messagePreviousFocus
+      : content.querySelector("h1");
+    target?.focus();
+  }
+  messagePreviousFocus = null;
 }
 
 function notify(text, error = false) {
-  clearTimeout(messageTimer);
+  messagePreviousFocus = document.activeElement;
   const body = el("p", text, "toast__text");
   const close = el("button", "×", "toast__close");
   close.type = "button";
@@ -172,7 +179,8 @@ function notify(text, error = false) {
   message.replaceChildren(body, close);
   message.className = `toast ${error ? "toast--error" : "toast--success"}`;
   message.setAttribute("role", error ? "alert" : "status");
-  if (!error) messageTimer = setTimeout(dismissMessage, 5000);
+  message.setAttribute("aria-live", error ? "assertive" : "polite");
+  message.setAttribute("aria-atomic", "true");
 }
 
 document.addEventListener("keydown", (event) => {
@@ -270,6 +278,7 @@ function bookingCard(
 ) {
   const card = el("article", undefined, "booking-table");
   card.id = `booking-${booking.id}`;
+  card.tabIndex = -1;
   card.dataset.bookingId = String(booking.id);
   const mine = booking.owner_login === user.login;
   const active = future(booking);
@@ -737,8 +746,16 @@ function setTimeFields(form, wall) {
   minutes.value = minute;
 }
 
+let bookingFormId = 0;
+
 function bookingForm(booking, onSave) {
   const form = document.querySelector("#booking-form").content.firstElementChild.cloneNode(true);
+  const formId = `booking-form-${bookingFormId++}`;
+  for (const [name, help] of [["bookable", "bookable-help"], ["duration_hours", "duration-help"]]) {
+    const description = form.querySelector(`#${help}`);
+    description.id = `${formId}-${help}`;
+    field(form, name).setAttribute("aria-describedby", description.id);
+  }
   fillOptions(field(form, "hour"), Array.from({ length: 24 }, (_, hour) => pad(hour)));
   fillOptions(field(form, "minute"), ["00", "15", "30", "45"]);
   const bookableSelect = field(form, "bookable");
@@ -869,7 +886,7 @@ function requestForm(booking) {
       await api(`/api/bookings/${booking.id}/requests`, {
         method: "POST", body: { seats: Number(seats.value) },
       });
-      await render();
+      await render({ focusBookingId: booking.id });
       notify("Spots requested. View or cancel them in My spots.");
     });
   });
@@ -894,10 +911,13 @@ async function browse() {
   seats.required = true;
   seatsLabel.append(seats);
   filters.append(bookableLabel, seatsLabel);
+  const resultsStatus = el("p");
+  resultsStatus.setAttribute("role", "status");
+  resultsStatus.setAttribute("aria-live", "polite");
+  resultsStatus.setAttribute("aria-atomic", "true");
   const results = el("section");
   results.setAttribute("aria-label", "Available bookings");
-  results.setAttribute("aria-live", "polite");
-  content.append(filters, results);
+  content.append(filters, resultsStatus, results);
   let revision = 0;
   let debounce;
   let lastQuery;
@@ -906,6 +926,7 @@ async function browse() {
     lastQuery = query();
     try {
       if (!filters.checkValidity()) {
+        resultsStatus.textContent = "Enter valid filter values to see bookings.";
         results.replaceChildren(el("p", "Enter valid filter values to see bookings."));
         return;
       }
@@ -934,7 +955,8 @@ async function browse() {
         requestedSeats.set(request.booking_id, (requestedSeats.get(request.booking_id) || 0) + request.seats);
       }
       if (current !== revision) return;
-      results.replaceChildren(el("p", `${bookingCount(bookings.length)} shown`));
+      resultsStatus.textContent = `${bookingCount(bookings.length)} shown`;
+      results.replaceChildren();
       if (bookings.length) results.append(seatLegend(),
         dateTabs(bookings, { activeRequests: active, requestedSeats, ownedBookings }));
       expireAt(bookings, () => {
@@ -945,6 +967,7 @@ async function browse() {
       if (current !== revision) return;
       const notice = el("p", error instanceof Error ? error.message : String(error));
       notice.setAttribute("role", "alert");
+      resultsStatus.textContent = "Bookings could not be loaded.";
       results.replaceChildren(notice);
     } finally {
       if (current === revision) {
@@ -1012,7 +1035,7 @@ function mySeatsCard(booking, context, options = {}) {
       await api(`/api/bookings/${booking.id}/${booking.closed ? "reopen" : "close"}`, {
         method: "POST",
       });
-      await render();
+      await render({ focusBookingId: booking.id });
       notify(booking.closed ? "Booking reopened." : "Booking closed.");
     });
     toggle.disabled = booking.closed && booking.seats_available === 0;
@@ -1021,7 +1044,7 @@ function mySeatsCard(booking, context, options = {}) {
       actions.append(button("Delete booking", async () => {
         if (!window.confirm("Delete this booking?")) return;
         await api(`/api/bookings/${booking.id}`, { method: "DELETE" });
-        await render();
+        await render({ focusHeading: true });
         notify("Booking deleted.");
       }, "p-button--negative"));
     }
@@ -1029,7 +1052,7 @@ function mySeatsCard(booking, context, options = {}) {
     edit.append(el("summary", booking.locked ? "Adjust booking size / spare spots" : "Edit booking"),
       bookingForm(booking, async (body) => {
         await api(`/api/bookings/${booking.id}`, { method: "PATCH", body });
-        await render();
+        await render({ focusBookingId: booking.id });
         notify("Booking updated.");
       }));
     card.append(edit);
@@ -1044,7 +1067,7 @@ function mySeatsCard(booking, context, options = {}) {
       card.append(button("Cancel request", async () => {
         if (!window.confirm("Cancel your spot request?")) return;
         await api(`/api/requests/${request.id}`, { method: "DELETE" });
-        await render();
+        await render({ focusBookingId: booking.id });
         notify("Request cancelled and spots returned.");
       }));
     }
@@ -1091,7 +1114,7 @@ async function mySeats() {
   if (expired.length) content.append(expiredSection(expired.map((booking) => mySeatsCard(booking, context))));
 }
 
-async function render() {
+async function render(focus = {}) {
   content.setAttribute("aria-busy", "true");
   clearTimeout(expiryTimer);
   content.replaceChildren();
@@ -1114,6 +1137,20 @@ async function render() {
   } finally {
     content.setAttribute("aria-busy", "false");
     followAnchor();
+    if (focus.focusBookingId !== undefined) {
+      const target = document.getElementById(`booking-${focus.focusBookingId}`);
+      const panel = target?.closest('[role="tabpanel"]');
+      if (panel?.hidden) {
+        selectDateTab(document.getElementById(panel.getAttribute("aria-labelledby")));
+      }
+      target?.focus();
+    } else if (focus.focusHeading) {
+      const heading = content.querySelector("h1");
+      if (heading) {
+        heading.tabIndex = -1;
+        heading.focus();
+      }
+    }
   }
 }
 
